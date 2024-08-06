@@ -1,11 +1,7 @@
 /**
  * @name AutoJoinVoice
- * @author RESCHER4444
  * @description Constantly joins a voice channel via ID.
- * @version 5.0.5
- * @source https://github.com/RESCHER4444/BetterDiscordPlugins/blob/main/AutoJoinVoice/AutoJoinVoice.plugin.js
- * @updateUrl https://raw.githubusercontent.com/RESCHER4444/BetterDiscordPlugins/main/AutoJoinVoice/AutoJoinVoice.plugin.js
- * @authorLink https://github.com/RESCHER4444
+ * @version 5.0.6
  */
 module.exports = class AutoJoinVoice {
     constructor() {
@@ -18,7 +14,7 @@ module.exports = class AutoJoinVoice {
                         discord_id: "616297463409672193",
                     }
                 ],
-                version: "5.0.5",
+                version: "5.0.6",
                 description: "Constantly joins a voice channel via ID.",
             },
             main: "index.js",
@@ -42,7 +38,7 @@ module.exports = class AutoJoinVoice {
 
         this.interval = setInterval(() => {
             this.joinVoiceChannel(this.channelId);
-        }, 1500); 
+        }, 1500);
     }
 
     stop() {
@@ -53,13 +49,14 @@ module.exports = class AutoJoinVoice {
             this.interval = null;
         }
 
+        this.leaveVoiceChannel(); 
         this.missingCount = 0;
     }
 
     setChannelId(channelId) {
         if (typeof channelId === 'string' && channelId.trim() !== '') {
             this.channelId = channelId;
-            this.start(); 
+            this.start();
         } else {
             console.error("Invalid channel ID. Please enter a valid channel ID.");
         }
@@ -77,6 +74,13 @@ module.exports = class AutoJoinVoice {
             } else {
                 this.handleMissingChannel();
             }
+        }
+    }
+
+    leaveVoiceChannel() {
+        const voiceChannelModule = BdApi.findModuleByProps("leaveVoiceChannel");
+        if (voiceChannelModule) {
+            voiceChannelModule.leaveVoiceChannel();
         }
     }
 
