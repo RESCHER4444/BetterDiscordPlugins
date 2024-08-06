@@ -16,10 +16,10 @@ module.exports = class AutoCameraPlugin {
                 authors: [
                     {
                         name: "RESCHER4444",
-                        discord_id: "616297463409672193",
+                        discord_id: "Your Discord ID",
                     }
                 ],
-                version: "2.9.0",
+                version: "0.9.0",
                 description: "Automatically activates the camera in voice channels.",
             },
             main: "index.js",
