@@ -1,8 +1,8 @@
 /**
  * @name AutoJoinVoice
- * @description Constantly joins a voice channel via ID.
- * @version 3.0
  * @author RESCHER4444
+ * @description Constantly joins a voice channel via ID.
+ * @version 4.0
  * @source https://github.com/RESCHER4444/BetterDiscordPlugins/blob/main/AutoJoinVoice/AutoJoinVoice.plugin.js
  * @updateUrl https://raw.githubusercontent.com/RESCHER4444/BetterDiscordPlugins/main/AutoJoinVoice/AutoJoinVoice.plugin.js
  * @authorLink https://github.com/RESCHER4444
