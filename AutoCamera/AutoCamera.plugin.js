@@ -2,7 +2,7 @@
  * @name AutoCamera
  * @author RESCHER4444
  * @description Automatically activates the camera in voice channels.
- * @version 2.0.0
+ * @version 2.1.0
  * @source https://github.com/RESCHER4444/BetterDiscordPlugins/blob/main/AutoCamera/AutoCamera.plugin.js
  * @updateUrl https://raw.githubusercontent.com/RESCHER4444/BetterDiscordPlugins/main/AutoCamera/AutoCamera.plugin.js
  * @authorLink https://github.com/RESCHER4444
@@ -19,7 +19,7 @@ module.exports = class AutoCameraPlugin {
                         discord_id: "616297463409672193",
                     }
                 ],
-                version: "2.0.0",
+                version: "2.1.0",
                 description: "Automatically activates the camera in voice channels.",
             },
             main: "index.js",
@@ -33,7 +33,7 @@ module.exports = class AutoCameraPlugin {
     start() {
         console.log("AutoCameraPlugin started.");
         this.checkForUpdates();
-        this.cameraButton = document.querySelector('button[aria-label="Turn on Camera"]');
+        this.cameraButton = document.querySelector('button[aria-label="Kamera anschalten"]');
         this.checkAndActivateCamera();
     }
 
@@ -58,7 +58,8 @@ module.exports = class AutoCameraPlugin {
     checkAndActivateCamera() {
         this.intervalId = setInterval(() => {
             try {
-                const cameraButton = document.querySelector('button[aria-label="Turn on Camera"]');
+
+                const cameraButton = document.querySelector('button[aria-label="Kamera anschalten"]');
                 if (cameraButton) {
                     const rect = cameraButton.getBoundingClientRect();
                     if (rect.top >= 0 && rect.left >= 0 && rect.bottom <= window.innerHeight && rect.right <= window.innerWidth) {
@@ -72,7 +73,7 @@ module.exports = class AutoCameraPlugin {
                         console.log("Camera button is not visible.");
                     }
                 } else {
-                    console.log("Camera button not found.");
+                    console.log("Camera button not found. Current DOM:", document.body.innerHTML);
                 }
             } catch (error) {
                 console.error("Error activating camera:", error);
