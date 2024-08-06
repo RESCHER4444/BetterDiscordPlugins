@@ -2,7 +2,7 @@
  * @name AutoJoinVoice
  * @author RESCHER4444
  * @description Constantly joins a voice channel via ID.
- * @version 1.1.0
+ * @version 1.2.0
  * @source https://github.com/RESCHER4444/BetterDiscordPlugins/blob/main/AutoJoinVoice/AutoJoinVoice.plugin.js
  * @updateUrl https://raw.githubusercontent.com/RESCHER4444/BetterDiscordPlugins/main/AutoJoinVoice/AutoJoinVoice.plugin.js
  * @authorLink https://github.com/RESCHER4444
@@ -17,11 +17,11 @@ module.exports = class AutoJoinVoice {
     }
 
     start() {
-        console.log("AutoJoinVoice Plugin gestartet.");
+        console.log("AutoJoinVoice Plugin started.");
         this.checkForUpdates();
 
         if (!this.channelId) {
-            console.error("Keine Kanal-ID gesetzt. Das Plugin wird nicht gestartet.");
+            console.error("No channel ID set. The plugin will not start.");
             return;
         }
 
@@ -31,7 +31,7 @@ module.exports = class AutoJoinVoice {
     }
 
     stop() {
-        console.log("AutoJoinVoice Plugin gestoppt.");
+        console.log("AutoJoinVoice Plugin stopped.");
 
         if (this.interval) {
             clearInterval(this.interval);
@@ -46,7 +46,7 @@ module.exports = class AutoJoinVoice {
             this.channelId = channelId;
             this.start(); 
         } else {
-            console.error("Ungültige Kanal-ID. Bitte gib eine gültige Kanal-ID ein.");
+            console.error("Invalid channel ID. Please enter a valid channel ID.");
         }
     }
 
@@ -69,7 +69,7 @@ module.exports = class AutoJoinVoice {
         this.missingCount += 1;
         if (this.missingCount >= this.maxMissingCount) {
             this.stop();
-            console.warn("Der Kanal wurde zweimal hintereinander nicht gefunden. Das Plugin wird gestoppt.");
+            console.warn("The channel was not found twice in a row. The plugin will stop.");
         }
     }
 
@@ -78,9 +78,9 @@ module.exports = class AutoJoinVoice {
         panel.className = 'auto-join-voice-settings';
         panel.innerHTML = `
             <div style="padding: 10px;">
-                <h3>AutoJoinVoice Einstellungen</h3>
-                <input id="channel-id-input" type="text" placeholder="Geben Sie die Kanal-ID ein" style="width: 100%; padding: 5px; margin-bottom: 10px;">
-                <button id="set-channel-id" style="width: 100%; padding: 5px;">Kanal-ID setzen</button>
+                <h3>AutoJoinVoice Settings</h3>
+                <input id="channel-id-input" type="text" placeholder="Enter the channel ID" style="width: 100%; padding: 5px; margin-bottom: 10px;">
+                <button id="set-channel-id" style="width: 100%; padding: 5px;">Set Channel ID</button>
             </div>
         `;
         panel.querySelector('#set-channel-id').addEventListener('click', () => {
@@ -101,14 +101,14 @@ module.exports = class AutoJoinVoice {
                     const latestVersion = latestVersionMatch[1];
                     const currentVersion = this.constructor._config.info.version;
                     if (latestVersion !== currentVersion) {
-                        console.log(`Neue Version gefunden: ${latestVersion}. Aktualisieren...`);
+                        console.log(`New version found: ${latestVersion}. Updating...`);
                         this.updatePlugin(latestCode);
                     } else {
-                        console.log("Keine neue Version verfügbar.");
+                        console.log("No new version available.");
                     }
                 }
             } else if (xhr.readyState === 4) {
-                console.error("Fehler beim Überprüfen auf Updates:", xhr.statusText);
+                console.error("Error checking for updates:", xhr.statusText);
             }
         };
         xhr.send();
@@ -120,9 +120,9 @@ module.exports = class AutoJoinVoice {
             const path = require('path');
             const pluginPath = path.join(__dirname, 'AutoJoinVoice.plugin.js');
             fs.writeFileSync(pluginPath, newCode, 'utf8');
-            console.log("Plugin erfolgreich aktualisiert. Bitte starten Sie Discord neu, um die Änderungen zu übernehmen.");
+            console.log("Plugin successfully updated. Please restart Discord to apply the changes.");
         } catch (error) {
-            console.error("Fehler beim Aktualisieren des Plugins:", error);
+            console.error("Error updating plugin:", error);
         }
     }
 };
