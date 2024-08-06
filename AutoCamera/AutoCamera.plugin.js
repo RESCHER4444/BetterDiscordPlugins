@@ -2,7 +2,7 @@
  * @name AutoCamera
  * @author RESCHER4444
  * @description Automatically activates the camera in voice channels.
- * @version 0.9.0
+ * @version 1.0.1
  * @source https://github.com/RESCHER4444/BetterDiscordPlugins/blob/main/AutoCamera/AutoCamera.plugin.js
  * @updateUrl https://raw.githubusercontent.com/RESCHER4444/BetterDiscordPlugins/main/AutoCamera/AutoCamera.plugin.js
  * @authorLink https://github.com/RESCHER4444
