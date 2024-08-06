@@ -1,14 +1,29 @@
 /**
  * @name AutoJoinVoice
- * @author RESCHER4444
  * @description Constantly joins a voice channel via ID.
  * @version 1.2.0
+ * @author RESCHER4444
  * @source https://github.com/RESCHER4444/BetterDiscordPlugins/blob/main/AutoJoinVoice/AutoJoinVoice.plugin.js
  * @updateUrl https://raw.githubusercontent.com/RESCHER4444/BetterDiscordPlugins/main/AutoJoinVoice/AutoJoinVoice.plugin.js
  * @authorLink https://github.com/RESCHER4444
  */
 module.exports = class AutoJoinVoice {
     constructor() {
+        this._config = {
+            info: {
+                name: "AutoJoinVoice",
+                authors: [
+                    {
+                        name: "RESCHER4444",
+                        discord_id: "Your Discord ID",
+                    }
+                ],
+                version: "1.2.0",
+                description: "Constantly joins a voice channel via ID.",
+            },
+            main: "index.js",
+        };
+
         this.interval = null;
         this.channelId = null;
         this.missingCount = 0;
@@ -99,7 +114,7 @@ module.exports = class AutoJoinVoice {
                 const latestVersionMatch = latestCode.match(/@version\s+([\d.]+)/);
                 if (latestVersionMatch) {
                     const latestVersion = latestVersionMatch[1];
-                    const currentVersion = this.constructor._config.info.version;
+                    const currentVersion = this._config.info.version;
                     if (latestVersion !== currentVersion) {
                         console.log(`New version found: ${latestVersion}. Updating...`);
                         this.updatePlugin(latestCode);
