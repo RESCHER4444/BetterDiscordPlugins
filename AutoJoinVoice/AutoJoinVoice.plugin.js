@@ -1,7 +1,7 @@
 /**
  * @name AutoJoinVoice
  * @description Constantly joins a voice channel via ID.
- * @version 1.2.1
+ * @version 2.0.0
  * @author RESCHER4444
  * @source https://github.com/RESCHER4444/BetterDiscordPlugins/blob/main/AutoJoinVoice/AutoJoinVoice.plugin.js
  * @updateUrl https://raw.githubusercontent.com/RESCHER4444/BetterDiscordPlugins/main/AutoJoinVoice/AutoJoinVoice.plugin.js
@@ -18,7 +18,7 @@ module.exports = class AutoJoinVoice {
                         discord_id: "616297463409672193",
                     }
                 ],
-                version: "1.2.1",
+                version: "2.0.0",
                 description: "Constantly joins a voice channel via ID.",
             },
             main: "index.js",
