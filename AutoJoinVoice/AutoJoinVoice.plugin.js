@@ -15,7 +15,7 @@ module.exports = class AutoJoinVoice {
                 authors: [
                     {
                         name: "RESCHER4444",
-                        discord_id: "Your Discord ID",
+                        discord_id: "616297463409672193",
                     }
                 ],
                 version: "1.2.0",
