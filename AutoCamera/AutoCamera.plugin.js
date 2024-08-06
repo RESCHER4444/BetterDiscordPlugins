@@ -16,7 +16,7 @@ module.exports = class AutoCameraPlugin {
                 authors: [
                     {
                         name: "RESCHER4444",
-                        discord_id: "Your Discord ID",
+                        discord_id: "616297463409672193",
                     }
                 ],
                 version: "0.9.0",
