@@ -1,7 +1,11 @@
 /**
  * @name AutoJoinVoice
+ * @author RESCHER4444
  * @description Constantly joins a voice channel via ID.
- * @version 5.0.6
+ * @version 5.0.7
+ * @source https://github.com/RESCHER4444/BetterDiscordPlugins/blob/main/AutoCamera/AutoCamera.plugin.js
+ * @updateUrl https://raw.githubusercontent.com/RESCHER4444/BetterDiscordPlugins/main/AutoCamera/AutoCamera.plugin.js
+ * @authorLink https://github.com/RESCHER4444
  */
 module.exports = class AutoJoinVoice {
     constructor() {
