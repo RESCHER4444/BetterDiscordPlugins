@@ -2,7 +2,7 @@
  * @name QuestCracker
  * @author RESCHER4444
  * @description First accept a quest, and then activate the plugin for 2 seconds. The quest will now slowly fill up.
- * @version 1.0
+ * @version 1.1
  * @source https://github.com/RESCHER4444/BetterDiscordPlugins/blob/main/QuestCracker/QuestCracker.plugin.js
  * @updateUrl https://raw.githubusercontent.com/RESCHER4444/BetterDiscordPlugins/main/QuestCracker/QuestCracker.plugin.js
  * @authorLink https://github.com/RESCHER4444
@@ -16,7 +16,7 @@ module.exports = class QuestCracker {
                 authors: [
                     {
                         name: "RESCHER4444",
-                        discord_id: "616297463409672193",
+                        discord_id: "Your Discord ID",
                     }
                 ],
                 version: "1.1",
@@ -182,4 +182,8 @@ module.exports = class QuestCracker {
                 };
                 FluxDispatcher.subscribe("QUESTS_SEND_HEARTBEAT_SUCCESS", fn);
 
-                console.log(`Spoofed your stream to ${application
+                console.log(`Spoofed your stream to ${applicationName}. Stream any window in vc for ${Math.ceil((secondsNeeded - secondsDone) / 60)} more minutes.`);
+            }
+        }
+    }
+};
