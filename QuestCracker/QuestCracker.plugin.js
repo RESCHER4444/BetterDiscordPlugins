@@ -2,7 +2,7 @@
  * @name QuestCracker
  * @author RESCHER4444
  * @description First accept a quest, and then activate the plugin for 2 seconds. The quest will now slowly fill up.
- * @version 1.1
+ * @version 1.2
  * @source https://github.com/RESCHER4444/BetterDiscordPlugins/blob/main/QuestCracker/QuestCracker.plugin.js
  * @updateUrl https://raw.githubusercontent.com/RESCHER4444/BetterDiscordPlugins/main/QuestCracker/QuestCracker.plugin.js
  * @authorLink https://github.com/RESCHER4444
@@ -16,10 +16,10 @@ module.exports = class QuestCracker {
                 authors: [
                     {
                         name: "RESCHER4444",
-                        discord_id: "Your Discord ID",
+                        discord_id: "616297463409672193",
                     }
                 ],
-                version: "1.1",
+                version: "1.2",
                 description: "First accept a quest, and then activate the plugin for 2 seconds. The quest will now slowly fill up.",
             },
             main: "index.js",
@@ -115,8 +115,16 @@ module.exports = class QuestCracker {
                 applicationId = quest.config.application.id;
                 applicationName = quest.config.application.name;
                 canPlay = ExperimentStore.getUserExperimentBucket("2024-04_quest_playtime_task") > 0 && quest.config.taskConfig.tasks["PLAY_ON_DESKTOP"];
+                
                 const taskName = canPlay ? "PLAY_ON_DESKTOP" : "STREAM_ON_DESKTOP";
-                secondsNeeded = quest.config.taskConfig.tasks[taskName].target;
+                const task = quest.config.taskConfig?.tasks?.[taskName];
+
+                if (task) {
+                    secondsNeeded = task.target;
+                } else {
+                    console.error(`Task "${taskName}" not found or not properly defined.`);
+                    return;
+                }
                 secondsDone = quest.userStatus?.progress?.[taskName]?.value ?? 0;
             }
 
