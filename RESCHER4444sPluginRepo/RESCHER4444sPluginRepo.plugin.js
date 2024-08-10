@@ -2,8 +2,8 @@
  * @name RESCHER4444sPluginRepo
  * @author RESCHER4444
  * @description A plugin repository plugin for RESCHER4444's BetterDiscord plugins.
- * @version 1.1.3
- * @source https://github.com/RESCHER4444/BetterDiscordPlugins/RESCHER4444sPluginRepo/RESCHER4444sPluginRepo.plugin.js
+ * @version 1.1.4
+ * @source https://github.com/RESCHER4444/BetterDiscordPlugins/blob/main/RESCHER4444sPluginRepo/RESCHER4444sPluginRepo.plugin.js
  * @updateUrl https://raw.githubusercontent.com/RESCHER4444/BetterDiscordPlugins/main/RESCHER4444sPluginRepo/RESCHER4444sPluginRepo.plugin.js
  * @authorLink https://github.com/RESCHER4444
  */
@@ -13,7 +13,7 @@ module.exports = (() => {
         info: {
             name: "RESCHER4444sPluginRepo",
             authors: [{ name: "RESCHER4444", github_username: "RESCHER4444" }],
-            version: "1.1.3",
+            version: "1.1.4",
             description: "A plugin repository plugin for RESCHER4444's BetterDiscord plugins.",
             github: "https://github.com/RESCHER4444/BetterDiscordPlugins",
             github_raw: "https://raw.githubusercontent.com/RESCHER4444/BetterDiscordPlugins/main/"
