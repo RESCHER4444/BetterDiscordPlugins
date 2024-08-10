@@ -2,7 +2,7 @@
  * @name RESCHER4444sPluginRepo
  * @author RESCHER4444
  * @description A plugin repository plugin for RESCHER4444's BetterDiscord plugins.
- * @version 1.1.1
+ * @version 1.1.3
  * @source https://github.com/RESCHER4444/BetterDiscordPlugins/RESCHER4444sPluginRepo/RESCHER4444sPluginRepo.plugin.js
  * @updateUrl https://raw.githubusercontent.com/RESCHER4444/BetterDiscordPlugins/main/RESCHER4444sPluginRepo/RESCHER4444sPluginRepo.plugin.js
  * @authorLink https://github.com/RESCHER4444
@@ -13,7 +13,7 @@ module.exports = (() => {
         info: {
             name: "RESCHER4444sPluginRepo",
             authors: [{ name: "RESCHER4444", github_username: "RESCHER4444" }],
-            version: "1.1.1",
+            version: "1.1.3",
             description: "A plugin repository plugin for RESCHER4444's BetterDiscord plugins.",
             github: "https://github.com/RESCHER4444/BetterDiscordPlugins",
             github_raw: "https://raw.githubusercontent.com/RESCHER4444/BetterDiscordPlugins/main/"
@@ -130,6 +130,7 @@ module.exports = (() => {
 
                 pluginButton.appendChild(img);
 
+
                 pluginButton.style.width = '24px';
                 pluginButton.style.height = '24px';
                 pluginButton.style.display = 'flex';
@@ -160,7 +161,7 @@ module.exports = (() => {
                 panelDiv.style.position = 'fixed';
                 panelDiv.style.top = '0';
                 panelDiv.style.right = '0';
-                panelDiv.style.width = '400px';
+                panelDiv.style.width = '400px';  
                 panelDiv.style.height = '100%';
                 panelDiv.style.backgroundColor = '#2f3136';
                 panelDiv.style.zIndex = '9999';
