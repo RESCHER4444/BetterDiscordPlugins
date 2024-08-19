@@ -1,11 +1,6 @@
 /**
  * @name RESCHER4444sPluginRepo
- * @author RESCHER4444
- * @description A plugin repository plugin for RESCHER4444's BetterDiscord plugins.
- * @version 1.1.4
- * @source https://github.com/RESCHER4444/BetterDiscordPlugins/blob/main/RESCHER4444sPluginRepo/RESCHER4444sPluginRepo.plugin.js
- * @updateUrl https://raw.githubusercontent.com/RESCHER4444/BetterDiscordPlugins/main/RESCHER4444sPluginRepo/RESCHER4444sPluginRepo.plugin.js
- * @authorLink https://github.com/RESCHER4444
+ * @version 1.1.5
  */
 
 module.exports = (() => {
@@ -13,17 +8,11 @@ module.exports = (() => {
         info: {
             name: "RESCHER4444sPluginRepo",
             authors: [{ name: "RESCHER4444", github_username: "RESCHER4444" }],
-            version: "1.1.4",
+            version: "1.1.5",
             description: "A plugin repository plugin for RESCHER4444's BetterDiscord plugins.",
             github: "https://github.com/RESCHER4444/BetterDiscordPlugins",
             github_raw: "https://raw.githubusercontent.com/RESCHER4444/BetterDiscordPlugins/main/"
         },
-        changelog: [
-            { title: "First publication", type: "added", items: ["Creates the plugin repository."] },
-            { title: "UI Update", type: "added", items: ["Added a modern UI to view and manage plugins."] },
-            { title: "Download Functionality", type: "added", items: ["Added functionality to download and save plugins directly."] },
-            { title: "Toolbar Integration", type: "added", items: ["Integrated plugin menu button into the toolbar."] }
-        ],
         main: "index.js"
     };
 
@@ -48,8 +37,8 @@ module.exports = (() => {
         start() { }
         stop() { }
     } : (([Plugin, Library]) => {
-        const { WebpackModules, Patcher, Settings, Toasts, DiscordModules, DOMTools } = Library;
-        const { React, ReactDOM } = DiscordModules;
+        const { Patcher, Toasts, DiscordModules } = Library;
+        const { React } = DiscordModules;
         const fs = require('fs');
         const path = require('path');
         const { Plugins } = BdApi;
@@ -61,12 +50,14 @@ module.exports = (() => {
             }
 
             onStart() {
+                console.log("Plugin started.");
                 this.checkForUpdates();
                 this.addToolbarButton();
                 this.startObserver();
             }
 
             onStop() {
+                console.log("Plugin stopped.");
                 Patcher.unpatchAll();
                 this.removeToolbarButton();
                 this.stopObserver();
@@ -110,10 +101,14 @@ module.exports = (() => {
             }
 
             addToolbarButton() {
+                console.log("Adding toolbar button.");
                 const pngIconUrl = 'https://cdn.discordapp.com/attachments/712950521396330498/1271752563183587339/60011896-fotor-20240810101510.png?ex=66b87b5f&is=66b729df&hm=cd66b400d6c72d33d05597d34cdec6f043e10576d5e3db68a360ad98224b34d5&';
 
                 const toolbar = document.querySelector('.toolbar_fc4f04');
-                if (!toolbar) return;
+                if (!toolbar) {
+                    console.error("Toolbar not found.");
+                    return;
+                }
 
                 if (document.querySelector('.iconWrapper_fc4f04[aria-label="RESCHER4444s Plugins"]')) return;
 
@@ -130,7 +125,6 @@ module.exports = (() => {
 
                 pluginButton.appendChild(img);
 
-
                 pluginButton.style.width = '24px';
                 pluginButton.style.height = '24px';
                 pluginButton.style.display = 'flex';
@@ -145,11 +139,13 @@ module.exports = (() => {
             }
 
             removeToolbarButton() {
+                console.log("Removing toolbar button.");
                 const pluginButton = document.querySelector('.iconWrapper_fc4f04[aria-label="RESCHER4444s Plugins"]');
                 if (pluginButton) pluginButton.remove();
             }
 
             openPluginPanel() {
+                console.log("Opening plugin panel.");
                 const existingPanel = document.querySelector('#rescher-plugin-panel');
                 if (existingPanel) {
                     existingPanel.style.display = 'flex';
@@ -180,12 +176,12 @@ module.exports = (() => {
                 header.innerText = "RESCHER4444's Plugins";
                 panelDiv.appendChild(header);
 
-                const listDiv = document.createElement('div');
-                listDiv.id = 'plugin-list';
-                listDiv.style.padding = '15px';
-                listDiv.style.flex = '1';
-                listDiv.style.overflowY = 'auto';
-                panelDiv.appendChild(listDiv);
+                const pluginListDiv = document.createElement('div');
+                pluginListDiv.id = 'plugin-list';
+                pluginListDiv.style.padding = '15px';
+                pluginListDiv.style.flex = '1 1 0%';
+                pluginListDiv.style.overflowY = 'auto';
+                panelDiv.appendChild(pluginListDiv);
 
                 const closeButton = document.createElement('button');
                 closeButton.innerText = 'Close';
@@ -203,71 +199,44 @@ module.exports = (() => {
 
                 document.body.appendChild(panelDiv);
 
-                this.loadPluginList().then(plugins => {
-                    const listElement = document.getElementById('plugin-list');
-                    listElement.innerHTML = plugins.length > 0 
-                        ? plugins.map(({ name, downloadUrl }) => `
-                            <div style="margin-bottom: 15px;">
-                                <div style="display: flex; justify-content: space-between; align-items: center;">
-                                    <span style="font-size: 16px; color: #ffffff;">${name}</span>
-                                    <button 
-                                        style="padding: 5px 10px; border: none; border-radius: 5px; background-color: #7289da; color: #ffffff; cursor: pointer;"
-                                        onclick="window.downloadPlugin('${downloadUrl}')"
-                                    >
-                                        Download
-                                    </button>
-                                </div>
-                            </div>
-                        `).join('')
-                        : '<p style="color: #ffffff;">No plugins found.</p>';
-                });
+                this.updatePluginList();
             }
 
-            async loadPluginList() {
-                const pluginListUrl = `${config.info.github_raw}BetterDiscordPlugins/`;
-                const response = await fetch(pluginListUrl);
-                const text = await response.text();
-                const regex = /\/BetterDiscordPlugins\/([^\/]+)\/\1\.plugin\.js/g;
-                const matches = [...text.matchAll(regex)];
-                return matches.map(match => ({
-                    name: match[1],
-                    downloadUrl: `${config.info.github_raw}BetterDiscordPlugins/${match[1]}/${match[1]}.plugin.js`
-                }));
-            }
+            async updatePluginList() {
+                console.log("Updating plugin list...");
 
-            downloadPlugin = async (url) => {
-                try {
-                    const response = await fetch(url);
-                    const blob = await response.blob();
-                    const fileName = url.split('/').pop();
-                    const filePath = path.join(Plugins.folder, fileName);
-                    
-                    fs.writeFile(filePath, Buffer.from(await blob.arrayBuffer()), err => {
-                        if (err) {
-                            console.error("Failed to save the plugin:", err);
-                            Toasts.error("Failed to save the plugin.");
-                        } else {
-                            Toasts.success("Plugin successfully saved!");
-                        }
-                    });
-                } catch (e) {
-                    console.error("Error downloading the plugin:", e);
-                    Toasts.error("Error downloading the plugin.");
+                const plugins = [
+                    { name: 'AutoCamera', downloadUrl: 'https://github.com/RESCHER4444/BetterDiscordPlugins/raw/main/AutoCamera/AutoCamera.plugin.js' },
+                    { name: 'AutoJoinVoice', downloadUrl: 'https://github.com/RESCHER4444/BetterDiscordPlugins/raw/main/AutoJoinVoice/AutoJoinVoice.plugin.js' }
+                    { name: 'QuestCracker', downloadUrl: 'https://github.com/RESCHER4444/BetterDiscordPlugins/raw/main/QuestCracker/QuestCracker.plugin.js' }
+                ];
+
+                console.log("Plugins to be displayed:", plugins);
+
+                const pluginListDiv = document.querySelector('#plugin-list');
+                if (!pluginListDiv) {
+                    console.error("Plugin list div not found.");
+                    return;
                 }
-            };
+
+                pluginListDiv.innerHTML = plugins.length
+                    ? plugins.map(({ name, downloadUrl }) => `
+                        <div style="margin-bottom: 10px; padding: 10px; border: 1px solid #ffffff; border-radius: 5px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <span style="color: #ffffff; font-weight: bold;">${name}</span>
+                                <a href="${downloadUrl}" style="background-color: #43b581; color: #ffffff; padding: 5px 10px; border-radius: 3px; text-decoration: none;">Download</a>
+                            </div>
+                        </div>
+                    `).join('')
+                    : '<p style="color: #ffffff;">No plugins found.</p>';
+            }
 
             startObserver() {
-                this.observer = new MutationObserver(() => {
-                    this.addToolbarButton();
-                });
-
-                this.observer.observe(document.body, { childList: true, subtree: true });
+                console.log("Observer started.");
             }
 
             stopObserver() {
-                if (this.observer) {
-                    this.observer.disconnect();
-                }
+                console.log("Observer stopped.");
             }
         }
 
