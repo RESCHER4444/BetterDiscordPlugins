@@ -207,7 +207,7 @@ module.exports = (() => {
 
                 const plugins = [
                     { name: 'AutoCamera', downloadUrl: 'https://github.com/RESCHER4444/BetterDiscordPlugins/raw/main/AutoCamera/AutoCamera.plugin.js' },
-                    { name: 'AutoJoinVoice', downloadUrl: 'https://github.com/RESCHER4444/BetterDiscordPlugins/raw/main/AutoJoinVoice/AutoJoinVoice.plugin.js' }
+                    { name: 'AutoJoinVoice', downloadUrl: 'https://github.com/RESCHER4444/BetterDiscordPlugins/raw/main/AutoJoinVoice/AutoJoinVoice.plugin.js' },
                     { name: 'QuestCracker', downloadUrl: 'https://github.com/RESCHER4444/BetterDiscordPlugins/raw/main/QuestCracker/QuestCracker.plugin.js' }
                 ];
 
