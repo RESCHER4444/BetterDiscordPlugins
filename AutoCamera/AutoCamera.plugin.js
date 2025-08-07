@@ -7,7 +7,6 @@
  * @updateUrl https://raw.githubusercontent.com/RESCHER4444/BetterDiscordPlugins/main/AutoCamera/AutoCamera.plugin.js
  * @authorLink https://github.com/RESCHER4444
  */
-
 module.exports = class AutoCameraPlugin {
     constructor() {
         this._config = {
@@ -178,7 +177,7 @@ module.exports = class AutoCameraPlugin {
         try {
             const fs = require('fs');
             const path = require('path');
-            // Plugin-Dateipfad ermitteln (kann je nach Installation variieren!)
+
             const pluginPath = path.join(__dirname, "AutoCamera.plugin.js");
             fs.writeFileSync(pluginPath, newCode, "utf8");
             console.log("AutoCamera: Plugin erfolgreich aktualisiert. Bitte Discord neu starten.");
