@@ -2,9 +2,9 @@
  * @name AutoJoinVoice
  * @author RESCHER4444
  * @description Constantly joins a voice channel via ID.
- * @version 5.0.8
+ * @version 5.1.0
  * @source https://github.com/RESCHER4444/BetterDiscordPlugins/blob/main/AutoCamera/AutoCamera.plugin.js
- * @updateUrl https://raw.githubusercontent.com/RESCHER4444/BetterDiscordPlugins/main/AutoCamera/AutoCamera.plugin.js
+ * @updateUrl https://raw.githubusercontent.com/RESCHER4444/BetterDiscordPlugins/main/AutoJoinVoice/AutoJoinVoice.plugin.js
  * @authorLink https://github.com/RESCHER4444
  */
 module.exports = class AutoJoinVoice {
@@ -18,7 +18,7 @@ module.exports = class AutoJoinVoice {
                         discord_id: "616297463409672193",
                     }
                 ],
-                version: "5.0.8",
+                version: "5.1.0",
                 description: "Constantly joins a voice channel via ID.",
             },
             main: "index.js",
@@ -29,11 +29,21 @@ module.exports = class AutoJoinVoice {
         this.missingCount = 0;
         this.maxMissingCount = 2;
         this.updateUrl = "https://raw.githubusercontent.com/RESCHER4444/BetterDiscordPlugins/main/AutoJoinVoice/AutoJoinVoice.plugin.js";
+
+        
+        this.storageKey = "AutoJoinVoice_channelId";
     }
 
     start() {
         console.log("AutoJoinVoice Plugin started.");
         this.checkForUpdates();
+
+
+        const savedId = BdApi.loadData(this._config.info.name, this.storageKey);
+        if (savedId) {
+            this.channelId = savedId;
+            console.log(`Loaded saved channel ID: ${savedId}`);
+        }
 
         if (!this.channelId) {
             console.error("No channel ID set. The plugin will not start.");
@@ -60,6 +70,9 @@ module.exports = class AutoJoinVoice {
     setChannelId(channelId) {
         if (typeof channelId === 'string' && channelId.trim() !== '') {
             this.channelId = channelId;
+
+            BdApi.saveData(this._config.info.name, this.storageKey, channelId);
+            console.log(`Channel ID set and saved: ${channelId}`);
             this.start();
         } else {
             console.error("Invalid channel ID. Please enter a valid channel ID.");
@@ -106,6 +119,13 @@ module.exports = class AutoJoinVoice {
                 <button id="set-channel-id" style="width: 100%; padding: 5px;">Set Channel ID</button>
             </div>
         `;
+
+
+        const savedId = BdApi.loadData(this._config.info.name, this.storageKey);
+        if (savedId) {
+            panel.querySelector('#channel-id-input').value = savedId;
+        }
+
         panel.querySelector('#set-channel-id').addEventListener('click', () => {
             const channelId = panel.querySelector('#channel-id-input').value.trim();
             this.setChannelId(channelId);
