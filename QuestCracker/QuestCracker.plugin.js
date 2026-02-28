@@ -2,7 +2,7 @@
  * @name QuestCracker
  * @author RESCHER4444
  * @description Accept a quest and then activate the plugin.
- * @version 3.1
+ * @version 4
  * @source https://github.com/RESCHER4444/BetterDiscordPlugins/blob/main/QuestCracker/QuestCracker.plugin.js
  * @updateUrl https://raw.githubusercontent.com/RESCHER4444/BetterDiscordPlugins/main/QuestCracker/QuestCracker.plugin.js
  * @authorLink https://github.com/RESCHER4444
@@ -10,228 +10,207 @@
 
 module.exports = class QuestCracker {
 
-    constructor() {
-        this.running = false;
-        this.currentProgress = "0";
-    }
+start() {
 
-    log(...msg) {
-        console.log("[QuestCracker]", ...msg);
-    }
+console.log("[QuestCracker] Starting...");
 
-    toast(msg) {
-        this.log(msg);
-    }
+delete window.$;
 
-    getStores() {
+let wpRequire =
+webpackChunkdiscord_app.push([[Symbol()],{},r=>r]);
+webpackChunkdiscord_app.pop();
 
-        let wpRequire =
-            webpackChunkdiscord_app.push([
-                [Symbol()],
-                {},
-                r => r
-            ]);
+const find = f =>
+Object.values(wpRequire.c)
+.find(x=>f(x?.exports))?.exports;
 
-        webpackChunkdiscord_app.pop();
+const RunningGameStore =
+find(x=>x?.Ay?.getRunningGames)?.Ay;
 
-        const find = (filter) =>
-            Object.values(wpRequire.c)
-                .find(x => filter(x?.exports))
-                ?.exports;
+const QuestsStore =
+find(x=>x?.A?.__proto__?.getQuest)?.A;
 
-        const QuestsStore =
-            find(x =>
-                x?.Z?.__proto__?.getQuest)?.Z ??
-            find(x =>
-                x?.A?.__proto__?.getQuest)?.A;
+const FluxDispatcher =
+find(x=>x?.h?.__proto__?.flushWaitQueue)?.h;
 
-        const ChannelStore =
-            find(x =>
-                x?.Z?.__proto__?.getSortedPrivateChannels)?.Z ??
-            find(x =>
-                x?.A?.__proto__?.getSortedPrivateChannels)?.A;
+const api =
+find(x=>x?.Bo?.get)?.Bo;
 
-        const api =
-            find(x => x?.tn?.get)?.tn ??
-            find(x => x?.Bo?.get)?.Bo;
+const supportedTasks = [
+"WATCH_VIDEO",
+"PLAY_ON_DESKTOP"
+];
 
-        return {
-            QuestsStore,
-            ChannelStore,
-            api
-        };
-    }
+let quests=[...QuestsStore.quests.values()].filter(x=>
+x.userStatus?.enrolledAt &&
+!x.userStatus?.completedAt &&
+supportedTasks.find(y =>
+Object.keys(
+(x.config.taskConfig??x.config.taskConfigV2).tasks
+).includes(y))
+);
 
-    async completeQuest(quest, Stores) {
+if(!quests.length){
+console.log("[QuestCracker] No quests.");
+return;
+}
 
-        const taskConfig =
-            quest.config.taskConfig ??
-            quest.config.taskConfigV2;
+console.log("[QuestCracker]",quests.length,"quest(s) found");
 
-        const taskName =
-            Object.keys(taskConfig.tasks)[0];
+const isApp = typeof DiscordNative!=="undefined";
 
-        const secondsNeeded =
-            taskConfig.tasks[taskName].target;
+const doJob=()=>{
 
-        this.toast(
-            "Completing " +
-            quest.config.application.name +
-            " (" + taskName + ")"
-        );
+const quest=quests.pop();
+if(!quest){
+console.log("[QuestCracker] All quests finished.");
+BdApi.Plugins.disable("QuestCracker");
+return;
+}
 
-        while (this.running) {
+const taskConfig=
+quest.config.taskConfig??
+quest.config.taskConfigV2;
 
-            let body = {};
+const taskName=
+supportedTasks.find(x=>taskConfig.tasks[x]);
 
-            if (taskName === "PLAY_ACTIVITY") {
+const secondsNeeded=
+taskConfig.tasks[taskName].target;
 
-                body = {
+let secondsDone=
+quest.userStatus?.progress?.[taskName]?.value??0;
 
-                    activity_key:
-                        "application:" +
-                        quest.config.application.id,
+console.log("[QuestCracker] Running",taskName);
 
-                    terminal: false
-                };
-            }
-            else {
+if(taskName==="WATCH_VIDEO"){
 
-                const channelId =
-                    Stores.ChannelStore
-                        .getSortedPrivateChannels()[0]?.id;
+(async()=>{
 
-                if (!channelId) {
-                    this.toast("No private channel found");
-                    return;
-                }
+while(secondsDone<secondsNeeded){
 
-                body = {
+await api.post({
+url:`/quests/${quest.id}/video-progress`,
+body:{timestamp:secondsDone+7}
+});
 
-                    stream_key:
-                        "call:" +
-                        channelId +
-                        ":1",
+secondsDone+=7;
 
-                    terminal: false
-                };
-            }
+console.log(
+`[QuestCracker] ${secondsDone}/${secondsNeeded}`
+);
 
-            const res =
-                await Stores.api.post({
+await new Promise(r=>setTimeout(r,1000));
+}
 
-                    url:
-                        "/quests/" +
-                        quest.id +
-                        "/heartbeat",
+console.log("[QuestCracker] Quest completed.");
+doJob();
 
-                    body
-                });
+})();
 
-            const progress =
-                Object.values(
-                    res.body.progress
-                )[0]?.value ?? 0;
+return;
+}
 
-            this.currentProgress =
-                progress +
-                "/" +
-                secondsNeeded;
+if(taskName==="PLAY_ON_DESKTOP"){
 
-            this.log(
-                "Progress:",
-                this.currentProgress
-            );
+if(!isApp){
+console.log("Desktop app required.");
+doJob();
+return;
+}
 
-            if (progress >= secondsNeeded)
-                break;
+api.get({
+url:`/applications/public?application_ids=${quest.config.application.id}`
+}).then(res=>{
 
-            await new Promise(r =>
-                setTimeout(r, 20000));
-        }
+const appData=res.body[0];
 
-        await Stores.api.post({
+const exeName =
+appData.executables?.find(x=>x.os==="win32")?.name
+?? appData.name+".exe";
 
-            url:
-                "/quests/" +
-                quest.id +
-                "/heartbeat",
+const pid=Math.floor(Math.random()*30000)+1000;
 
-            body: {terminal: true}
-        });
+const fakeGame={
+cmdLine:`C:\\Program Files\\${appData.name}\\${exeName}`,
+exeName,
+exePath:`c:/program files/${appData.name}/${exeName}`,
+hidden:false,
+isLauncher:false,
+id:quest.config.application.id,
+name:appData.name,
+pid,
+pidPath:[pid],
+processName:appData.name,
+start:Date.now()
+};
 
-        this.toast("Quest completed");
-    }
+const realGames=RunningGameStore.getRunningGames();
+const realGetRunningGames=RunningGameStore.getRunningGames;
+const realGetGameForPID=RunningGameStore.getGameForPID;
 
-    async start() {
+RunningGameStore.getRunningGames=()=>[fakeGame];
+RunningGameStore.getGameForPID=p=>fakeGame;
 
-        this.running = true;
+FluxDispatcher.dispatch({
+type:"RUNNING_GAMES_CHANGE",
+removed:realGames,
+added:[fakeGame],
+games:[fakeGame]
+});
 
-        try {
+console.log("[QuestCracker] Game spoofed:",appData.name);
 
-            const Stores =
-                this.getStores();
+const fn=data=>{
 
-            if (!Stores.QuestsStore) {
+let progress=
+Math.floor(
+data.userStatus.progress.PLAY_ON_DESKTOP.value
+);
 
-                this.toast(
-                    "QuestsStore not found"
-                );
+console.log(
+`[QuestCracker] ${progress}/${secondsNeeded}`
+);
 
-                return;
-            }
+if(progress>=secondsNeeded){
 
-            const quests =
-                [...Stores.QuestsStore.quests.values()]
-                    .filter(q =>
-                        q.userStatus?.enrolledAt &&
-                        !q.userStatus?.completedAt
-                    );
+RunningGameStore.getRunningGames=realGetRunningGames;
+RunningGameStore.getGameForPID=realGetGameForPID;
 
-            if (!quests.length) {
+FluxDispatcher.dispatch({
+type:"RUNNING_GAMES_CHANGE",
+removed:[fakeGame],
+added:[],
+games:[]
+});
 
-                this.toast(
-                    "No active quests"
-                );
+FluxDispatcher.unsubscribe(
+"QUESTS_SEND_HEARTBEAT_SUCCESS",
+fn
+);
 
-                return;
-            }
+console.log("[QuestCracker] Quest completed.");
+doJob();
+}
+};
 
-            this.toast(
-                quests.length +
-                " active quest(s) found"
-            );
+FluxDispatcher.subscribe(
+"QUESTS_SEND_HEARTBEAT_SUCCESS",
+fn
+);
 
-            for (const quest of quests) {
+});
 
-                if (!this.running)
-                    break;
+return;
+}
 
-                await this.completeQuest(
-                    quest,
-                    Stores
-                );
-            }
+doJob();
+};
 
-            this.toast(
-                "All quests completed"
-            );
-        }
-        catch (e) {
+doJob();
+}
 
-            console.error(e);
-
-            this.toast(
-                "Error: " +
-                e.message
-            );
-        }
-    }
-
-    stop() {
-
-        this.running = false;
-
-        this.toast("Stopped");
-    }
+stop(){
+console.log("[QuestCracker] Stopped.");
+}
 };
