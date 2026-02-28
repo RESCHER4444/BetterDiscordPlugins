@@ -2,7 +2,7 @@
  * @name QuestCracker
  * @author RESCHER4444
  * @description Accept a quest and then activate the plugin.
- * @version 4
+ * @version 5
  * @source https://github.com/RESCHER4444/BetterDiscordPlugins/blob/main/QuestCracker/QuestCracker.plugin.js
  * @updateUrl https://raw.githubusercontent.com/RESCHER4444/BetterDiscordPlugins/main/QuestCracker/QuestCracker.plugin.js
  * @authorLink https://github.com/RESCHER4444
@@ -83,32 +83,38 @@ quest.userStatus?.progress?.[taskName]?.value??0;
 
 console.log("[QuestCracker] Running",taskName);
 
-if(taskName==="WATCH_VIDEO"){
+if(taskName === "WATCH_VIDEO" || taskName === "WATCH_VIDEO_ON_MOBILE") {
 
-(async()=>{
+    const enrolledAt = new Date(quest.userStatus.enrolledAt).getTime();
+    let secondsDone = quest.userStatus?.progress?.[taskName]?.value ?? 0;
 
-while(secondsDone<secondsNeeded){
+    (async () => {
+        while (secondsDone < secondsNeeded) {
+            const increment = 1; // 1 Sekunde pro Request
+            const timestamp = Math.min(secondsNeeded, secondsDone + increment);
 
-await api.post({
-url:`/quests/${quest.id}/video-progress`,
-body:{timestamp:secondsDone+7}
-});
+            try {
+                await api.post({
+                    url: `/quests/${quest.id}/video-progress`,
+                    body: { timestamp }
+                });
+            } catch (error) {
+                console.error("[QuestCracker] Video progress error:", error);
+                // Pause bei Fehlern und erneut versuchen
+                await new Promise(r => setTimeout(r, 1000));
+                continue;
+            }
 
-secondsDone+=7;
+            secondsDone = timestamp;
+            console.log(`[QuestCracker] ${secondsDone}/${secondsNeeded}`);
+            await new Promise(r => setTimeout(r, 1000)); // 1 Sekunde Pause
+        }
 
-console.log(
-`[QuestCracker] ${secondsDone}/${secondsNeeded}`
-);
+        console.log("[QuestCracker] Video quest completed!");
+        doJob();
+    })();
 
-await new Promise(r=>setTimeout(r,1000));
-}
-
-console.log("[QuestCracker] Quest completed.");
-doJob();
-
-})();
-
-return;
+    return;
 }
 
 if(taskName==="PLAY_ON_DESKTOP"){
