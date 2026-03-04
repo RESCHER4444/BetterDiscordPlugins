@@ -2,7 +2,7 @@
  * @name QuestCracker
  * @author RESCHER4444
  * @description Accept a quest and then activate the plugin.
- * @version 5
+ * @version 6.1
  * @source https://github.com/RESCHER4444/BetterDiscordPlugins/blob/main/QuestCracker/QuestCracker.plugin.js
  * @updateUrl https://raw.githubusercontent.com/RESCHER4444/BetterDiscordPlugins/main/QuestCracker/QuestCracker.plugin.js
  * @authorLink https://github.com/RESCHER4444
@@ -10,13 +10,15 @@
 
 module.exports = class QuestCracker {
 
-start() {
+log(...m){console.log("[QuestCracker]",...m)}
 
-console.log("[QuestCracker] Starting...");
+start(){
+
+this.log("Starting...");
 
 delete window.$;
 
-let wpRequire =
+const wpRequire =
 webpackChunkdiscord_app.push([[Symbol()],{},r=>r]);
 webpackChunkdiscord_app.pop();
 
@@ -36,36 +38,59 @@ find(x=>x?.h?.__proto__?.flushWaitQueue)?.h;
 const api =
 find(x=>x?.Bo?.get)?.Bo;
 
-const supportedTasks = [
+const supportedTasks=[
 "WATCH_VIDEO",
+"WATCH_VIDEO_ON_MOBILE",
 "PLAY_ON_DESKTOP"
 ];
 
-let quests=[...QuestsStore.quests.values()].filter(x=>
-x.userStatus?.enrolledAt &&
-!x.userStatus?.completedAt &&
-supportedTasks.find(y =>
-Object.keys(
-(x.config.taskConfig??x.config.taskConfigV2).tasks
-).includes(y))
-);
+let allQuests=[];
 
-if(!quests.length){
-console.log("[QuestCracker] No quests.");
-return;
+if(QuestsStore?.quests?.values)
+    allQuests=[...QuestsStore.quests.values()];
+else if(typeof QuestsStore?.getAllQuests==="function")
+    allQuests=Object.values(QuestsStore.getAllQuests());
+else{
+    for(const k in QuestsStore){
+        const q=QuestsStore[k];
+        if(q?.config?.application) allQuests.push(q);
+    }
 }
 
-console.log("[QuestCracker]",quests.length,"quest(s) found");
+let quests=allQuests.filter(q=>{
 
-const isApp = typeof DiscordNative!=="undefined";
+    const taskConfig=
+    q.config?.taskConfig??
+    q.config?.taskConfigV2;
+
+    if(!taskConfig?.tasks) return false;
+
+    return(
+        q.userStatus?.enrolledAt &&
+        !q.userStatus?.completedAt &&
+        supportedTasks.some(t=>
+            Object.keys(taskConfig.tasks).includes(t)
+        )
+    );
+});
+
+if(!quests.length){
+    this.log("No quests.");
+    return;
+}
+
+this.log(quests.length,"quest(s) found");
+
+const isApp=typeof DiscordNative!=="undefined";
 
 const doJob=()=>{
 
 const quest=quests.pop();
+
 if(!quest){
-console.log("[QuestCracker] All quests finished.");
-BdApi.Plugins.disable("QuestCracker");
-return;
+    this.log("All quests finished.");
+    BdApi.Plugins.disable("QuestCracker");
+    return;
 }
 
 const taskConfig=
@@ -73,7 +98,7 @@ quest.config.taskConfig??
 quest.config.taskConfigV2;
 
 const taskName=
-supportedTasks.find(x=>taskConfig.tasks[x]);
+supportedTasks.find(t=>taskConfig.tasks[t]);
 
 const secondsNeeded=
 taskConfig.tasks[taskName].target;
@@ -81,46 +106,71 @@ taskConfig.tasks[taskName].target;
 let secondsDone=
 quest.userStatus?.progress?.[taskName]?.value??0;
 
-console.log("[QuestCracker] Running",taskName);
+this.log("Running",taskName);
 
-if(taskName === "WATCH_VIDEO" || taskName === "WATCH_VIDEO_ON_MOBILE") {
+if(
+taskName==="WATCH_VIDEO"||
+taskName==="WATCH_VIDEO_ON_MOBILE"
+){
 
-    const enrolledAt = new Date(quest.userStatus.enrolledAt).getTime();
-    let secondsDone = quest.userStatus?.progress?.[taskName]?.value ?? 0;
+(async()=>{
 
-    (async () => {
-        while (secondsDone < secondsNeeded) {
-            const increment = 1; // 1 Sekunde pro Request
-            const timestamp = Math.min(secondsNeeded, secondsDone + increment);
+this.log("Video spoof started");
 
-            try {
-                await api.post({
-                    url: `/quests/${quest.id}/video-progress`,
-                    body: { timestamp }
-                });
-            } catch (error) {
-                console.error("[QuestCracker] Video progress error:", error);
-                // Pause bei Fehlern und erneut versuchen
-                await new Promise(r => setTimeout(r, 1000));
-                continue;
-            }
+while(secondsDone<secondsNeeded){
 
-            secondsDone = timestamp;
-            console.log(`[QuestCracker] ${secondsDone}/${secondsNeeded}`);
-            await new Promise(r => setTimeout(r, 1000)); // 1 Sekunde Pause
-        }
+const increment=
+Math.floor(Math.random()*3)+1;
 
-        console.log("[QuestCracker] Video quest completed!");
-        doJob();
-    })();
+const timestamp=Math.min(
+secondsNeeded,
+secondsDone+increment
+);
 
-    return;
+try{
+
+await api.post({
+url:`/quests/${quest.id}/video-progress`,
+body:{
+timestamp,
+source:
+taskName==="WATCH_VIDEO_ON_MOBILE"
+?"mobile"
+:"desktop"
+}
+});
+
+}catch(e){
+
+this.log("Retry tick...");
+await new Promise(r=>setTimeout(r,2000));
+continue;
+}
+
+secondsDone=timestamp;
+
+this.log(`${secondsDone}/${secondsNeeded}`);
+
+const delay=
+taskName==="WATCH_VIDEO_ON_MOBILE"
+?2500+Math.random()*1500
+:1000;
+
+await new Promise(r=>setTimeout(r,delay));
+}
+
+this.log("Video quest completed.");
+doJob();
+
+})();
+
+return;
 }
 
 if(taskName==="PLAY_ON_DESKTOP"){
 
 if(!isApp){
-console.log("Desktop app required.");
+this.log("Desktop app required.");
 doJob();
 return;
 }
@@ -131,9 +181,9 @@ url:`/applications/public?application_ids=${quest.config.application.id}`
 
 const appData=res.body[0];
 
-const exeName =
+const exeName=
 appData.executables?.find(x=>x.os==="win32")?.name
-?? appData.name+".exe";
+??appData.name+".exe";
 
 const pid=Math.floor(Math.random()*30000)+1000;
 
@@ -165,18 +215,15 @@ added:[fakeGame],
 games:[fakeGame]
 });
 
-console.log("[QuestCracker] Game spoofed:",appData.name);
+this.log("Game spoofed:",appData.name);
 
 const fn=data=>{
 
-let progress=
-Math.floor(
+const progress=Math.floor(
 data.userStatus.progress.PLAY_ON_DESKTOP.value
 );
 
-console.log(
-`[QuestCracker] ${progress}/${secondsNeeded}`
-);
+this.log(`${progress}/${secondsNeeded}`);
 
 if(progress>=secondsNeeded){
 
@@ -195,7 +242,7 @@ FluxDispatcher.unsubscribe(
 fn
 );
 
-console.log("[QuestCracker] Quest completed.");
+this.log("Quest completed.");
 doJob();
 }
 };
@@ -210,7 +257,6 @@ fn
 return;
 }
 
-doJob();
 };
 
 doJob();
@@ -219,4 +265,5 @@ doJob();
 stop(){
 console.log("[QuestCracker] Stopped.");
 }
+
 };
